@@ -54,7 +54,7 @@ class Meso4(nn.Module):
         x = self.fc1(x)
         x = self.leakyrelu(x)
 
-        x = self.dropout(0.5)
+        x = self.dropout(x)
         x = self.fc2(x)
 
         return x

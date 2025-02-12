@@ -102,6 +102,22 @@ class ImagesDataset(VisionDataset):
         return DataLoader(self, batch_size=batchsize, shuffle=True, num_workers=num_workers)
 
 
-def load_dataset(train_path, val_path, transform_train, transform_val):
+def load_dataset(train_path: str, val_path: str, transform_train: callable, transform_val: callable):
+    """
+    This function loads the training and validation datasets from the specified directories,
+    applies the respective transformations, and returns the datasets for further use.
+    
+    Args:
+    - train_path (str): Path to the training data directory.
+    - val_path (str): Path to the validation data directory.
+    - transform_train (callable): Transformation to be applied on each training image.
+    - transform_val (callable): Transformation to be applied on each validation image.
+    
+    Returns:
+    - train_dataset (torchvision.datasets.ImageFolder): The training dataset with applied transformations.
+    - val_dataset (torchvision.datasets.ImageFolder): The validation dataset with applied transformations.
+    """
     train_dataset = torchvision.datasets.ImageFolder(train_path, transform=transform_train)
     val_dataset = torchvision.datasets.ImageFolder(val_path, transform=transform_val)
+
+    return train_dataset, val_dataset

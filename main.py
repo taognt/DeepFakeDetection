@@ -15,14 +15,16 @@ def main(args):
     data_path = Path(args.data_path)
     fraction = float(args.fraction)
     batch_size = int(args.batch_size)
+    nb_epochs = int(args.nb_epochs)
+    output_path = Path(args.output_path)
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     print(f"Device used: {device}")
 
 ## -- Dataset -- ##
     ## Load dataset ##
-    train_path = os.path.join(data_path, 'train')
-    test_path = os.path.join(data_path, 'test')
-    val_path = os.path.join(data_path, 'val')
+    train_path = os.path.join(data_path, 'Train') #discern Fake / Real
+    test_path = os.path.join(data_path, 'Test') #discern Fake / Real
+    val_path = os.path.join(data_path, 'Validation') #discern Fake / Real
 
     transform_train = mesonet_data_transforms['train']
     transform_val = mesonet_data_transforms['val']
@@ -49,17 +51,16 @@ def main(args):
 
 ## -- Model Training -- #
     model = Mesonet(device=device)
-    model.train()
+    model.train(trainloader=train_loader, valloader=val_loader, nb_epochs=nb_epochs, output_path=output_path)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-
     parser.add_argument(
         "--data_path",
         type=str,
-        default="./data/valid",
+        default="./Mesonet/data",
     )
 
     parser.add_argument(
@@ -74,6 +75,20 @@ if __name__ == '__main__':
         type=int,
         default=64,
         help="Batch Size."
+    )
+
+    parser.add_argument(
+        "--nb_epochs",
+        type=int,
+        default=50,
+        help="Number of epochs to train the model on."
+    )
+
+    parser.add_argument(
+        "--output_path",
+        type=str,
+        default='output_data',
+        help="Output path to store model weights."
     )
 
     args = parser.parse_args()

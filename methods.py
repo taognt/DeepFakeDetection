@@ -7,6 +7,7 @@ import torch
 import os
 from tqdm import tqdm 
 from matplotlib import pyplot as plt
+import time
 
 class Mesonet():
     def __init__(
@@ -50,8 +51,11 @@ class Mesonet():
             val_corrects = 0.0
 
             # Training phase
+            print(f"-- Training phase")
+            t1 = time.time()
             pbar = tqdm(enumerate(trainloader, 0), total=len(trainloader), desc=f"Epoch {epoch + 1}/{nb_epochs}")
             for i, data in pbar:
+                t1bis = time.time()
                 images, labels = data
                 images = images.to(self.device)
                 labels = labels.to(self.device)
@@ -67,15 +71,26 @@ class Mesonet():
                 train_loss += loss.data.item()
                 train_corrects += torch.sum(preds == labels.data).to(torch.float32)
 
-                # Update progress bar
-                pbar.set_postfix({
-                    "Train Loss": round(loss.item(), 4),
-                    "Train Acc": round((torch.sum(preds == labels.data).item() / images.size(0)), 4)
-                })
+                if i % 10 == 0:  # Update progress bar every 10 batches
+                    pbar.set_postfix({
+                        "Train Loss": round(loss.item(), 4),
+                        "Train Acc": round((torch.sum(preds == labels.data).item() / images.size(0)), 4)
+                    })
+
+            t2 = time.time()
+
+            print(f"Last data process time: {t2-t1bis} seconds")
+            print(f"-- End training phase: {t2-t1} seconds")
+            
+            t1 = time.time()
             epoch_train_loss = train_loss / len(trainloader.dataset)
             train_losses.append(epoch_train_loss)
+            t2 = time.time()
+            print(f"Compute epoch train loss: {t2-t1} seconds.")
 
             # Validation phase
+            t1 = time.time()
+            print(f"-- Validation phase")
             self.network.eval()
             with torch.no_grad():
                 for images, labels in valloader:
@@ -102,7 +117,9 @@ class Mesonet():
                 if epoch_val_acc > best_acc:
                     best_acc = epoch_val_acc
                     best_model_weights = self.network.state_dict()
-
+            t2 = time.time()
+            print(f"-- End validation phase: {t2-t1}")
+            
             # Save model every 10 epochs
             if (epoch + 1) % 10 == 0:
                 torch.save(self.network.state_dict(), os.path.join(output_path, f"epoch_{epoch + 1}.pth"))
