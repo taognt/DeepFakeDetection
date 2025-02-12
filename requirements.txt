@@ -1,2 +1,6 @@
 torchvision
 torch
+tqdm
+matplotlib
+pandas
+scikit-learn
