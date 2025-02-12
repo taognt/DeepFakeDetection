@@ -1,0 +1,6 @@
+torchvision==0.20.1
+torch==2.5.1
+kagglehub==0.3.7
+kagglehub[pandas-datasets]
+matplotlib==3.9.4
+scikit-learn==1.6.1

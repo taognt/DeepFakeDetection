@@ -1,0 +1,11 @@
+## Environments
+**/myenv/
+**/**env/
+
+**/*.DS_Store
+.python-version
+**/data/
+**/Dataset.zip
+*.pyc
+*output_data/
+*.zip
