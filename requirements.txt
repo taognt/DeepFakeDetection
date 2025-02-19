@@ -4,3 +4,4 @@ kagglehub==0.3.7
 kagglehub[pandas-datasets]
 matplotlib==3.9.4
 scikit-learn==1.6.1
+gdown==5.2.0
