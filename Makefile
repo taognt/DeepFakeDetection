@@ -4,7 +4,7 @@ DATA_FOLDER="./data"
 
 TIME=01:00:00
 
-FRACTION=0.1
+FRACTION=1.0
 PARAMS = --fraction=$(FRACTION)\
 	--nb_epochs=10
 	
@@ -16,3 +16,6 @@ download-dataset:
 
 make run:
 	srun --pty --time=$(TIME) --partition=$(PART) --gpus=1 python main.py $(PARAMS)
+
+make run-local:
+	python3 main.py --fraction=1.0 --nb_epochs=50

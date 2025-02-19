@@ -22,9 +22,9 @@ def main(args):
 
 ## -- Dataset -- ##
     ## Load dataset ##
-    train_path = os.path.join(data_path, 'train') #discern Fake / Real
-    test_path = os.path.join(data_path, 'test') #discern Fake / Real
-    val_path = os.path.join(data_path, 'val') #discern Fake / Real
+    train_path = os.path.join(data_path, 'Train') #discern Fake / Real
+    test_path = os.path.join(data_path, 'Test') #discern Fake / Real
+    val_path = os.path.join(data_path, 'Validation') #discern Fake / Real
 
     transform_train = mesonet_data_transforms['train']
     transform_val = mesonet_data_transforms['val']
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--data_path",
         type=str,
-        default="./Mesonet/data",
+        default="./data",
     )
 
     parser.add_argument(
