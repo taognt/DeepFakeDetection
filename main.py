@@ -17,8 +17,10 @@ def main(args):
     batch_size = int(args.batch_size)
     nb_epochs = int(args.nb_epochs)
     output_path = Path(args.output_path)
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    lr = float(args.lr)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.mps.is_available() else 'cpu')
     print(f"Device used: {device}")
+    print(f"Output name: loss_graph_BS{batch_size}_lr{lr}_frac{int(fraction*100)}%.png")
 
 ## -- Dataset -- ##
     ## Load dataset ##
@@ -50,7 +52,7 @@ def main(args):
         val_dataset_size = len(val_dataset)
 
 ## -- Model Training -- #
-    model = Mesonet(device=device)
+    model = Mesonet(device=device, fraction=fraction, batch_size=batch_size, lr=lr, trainloader=train_loader)
     model.train(trainloader=train_loader, valloader=val_loader, nb_epochs=nb_epochs, output_path=output_path)
 
 if __name__ == '__main__':
@@ -61,6 +63,12 @@ if __name__ == '__main__':
         "--data_path",
         type=str,
         default="./data",
+    )
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=0.01,
+        help="Learning rate."
     )
 
     parser.add_argument(
