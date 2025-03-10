@@ -107,12 +107,8 @@ class Mesonet():
                 val_losses.append(epoch_val_loss)
                 epoch_val_acc = val_corrects / len(valloader.dataset)
 
-                # Update progress bar for validation
-                pbar.set_postfix({
-                    "Val Loss": round(epoch_val_loss, 4),
-                    "Val Acc": round(epoch_val_acc.item(), 4)
-                }, refresh=True)
-
+                print(f"Val loss: {round(epoch_val_loss, 4)}")
+                print(f"Val acc: {round(epoch_val_acc.item(), 4)}")
                 # Save the best model
                 if epoch_val_acc > best_acc:
                     best_acc = epoch_val_acc

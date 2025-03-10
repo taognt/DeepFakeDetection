@@ -4,7 +4,7 @@ DATA_FOLDER="./data"
 
 TIME=01:00:00
 
-FRACTION=0.1
+FRACTION=1.0
 PARAMS = --fraction=$(FRACTION)\
 	--nb_epochs=10
 	

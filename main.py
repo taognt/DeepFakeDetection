@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--data_path",
         type=str,
-        default="./Mesonet/data",
+        default="./data",
     )
 
     parser.add_argument(
