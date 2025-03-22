@@ -11,7 +11,7 @@ FRACTION=1.0
 # NB_EPOCHS=20 50 100
 # LEARNING_RATES=1e-5
 
-BATCH_SIZES=64
+BATCH_SIZES=20
 LEARNING_RATES=1e-5
 
 # Try 1e-4 after
@@ -19,7 +19,10 @@ LEARNING_RATES=1e-5
 PARAMS = --fraction=$(FRACTION)\
 	--nb_epochs=50\
 	--batch_size=20\
-	--lr=1e-5
+	--lr=1e-5\
+	--train=0\
+	--test=0\
+	--model_path="output_data/best_model_BS20_lr1e-05.pth"
 
 download-dataset:
 	mkdir -p $(DATA_FOLDER)

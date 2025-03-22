@@ -20,7 +20,7 @@ class Mesonet():
             batch_size: int = 64,
             trainloader: DataLoader = None,
             epochs_per_cycle: int = 4, # Number of epoch per full cycle
-            step_lr: bool = True,
+            step_lr: bool = False,
             ):
         self.device = device
         self.lr = lr
@@ -31,11 +31,12 @@ class Mesonet():
             self.network = Meso4(num_classes=2)
             self.network = self.network.to(device)
 
-        self.optimizer =  optim.Adam(self.network.parameters(), lr=lr, betas=(0.9, 0.99), eps=1e-8) # Test SGD
+        self.optimizer =  optim.Adam(self.network.parameters(), lr=lr, betas=(0.9, 0.99), eps=1e-8, weight_decay=1e-4) # Test SGD, weight decay controls overfit
+
         
         # Scheduler: cyclic 
         if step_lr:
-            self.scheduler = lr_scheduler.StepLR(self.optimizer, step_size=8, gamma=0.5)
+            self.scheduler = lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.5)
         
         else:
             # Dynamically calculate step_size based on trainloader
@@ -48,14 +49,28 @@ class Mesonet():
                 step_size_down = 200
 
             # CyclicLR Scheduler
-            self.scheduler = lr_scheduler.CyclicLR(
+            # self.scheduler = lr_scheduler.CyclicLR(
+            #     self.optimizer,
+            #     base_lr=self.lr,         # Minimum learning rate
+            #     max_lr=1e-4,             # Maximum learning rate
+            #     # step_size_up=step_size_up,  
+            #     step_size_down=step_size_down,
+            #     mode='triangular2',      # Smoother decay
+            #     cycle_momentum=False     # Set False for Adam optimizer
+            # )
+            
+            if trainloader:
+                total_steps = 30 * len(trainloader)
+            else:
+                total_steps = 600
+
+            self.scheduler = lr_scheduler.OneCycleLR(
                 self.optimizer,
-                base_lr=self.lr,         # Minimum learning rate
-                max_lr=1e-4,             # Maximum learning rate
-                # step_size_up=step_size_up,  
-                step_size_down=step_size_down,
-                mode='triangular2',      # Smoother decay
-                cycle_momentum=False     # Set False for Adam optimizer
+                max_lr=1e-4,   # Peak learning rate
+                total_steps=total_steps,  # Total steps during training
+                pct_start=0.1,  # Warm-up percentage
+                anneal_strategy='cos',  # Cosine decay
+                cycle_momentum=False
             )
 
         self.criterion = nn.CrossEntropyLoss() # Classification problem: maybe prefer Binary Cross entropy (BCE)
@@ -66,7 +81,7 @@ class Mesonet():
             valloader: DataLoader,
             nb_epochs: int,
             output_path: str,
-            patience: int = 20,         # Stop if no improvement for 10 epochs
+            patience: int = 200,         # Stop if no improvement for 10 epochs
             min_delta: float = 0.0005  #0.01  # Minimum change to be considered as improvement
     ):
         print(">>> TRAIN")
@@ -78,7 +93,7 @@ class Mesonet():
         log_file_path = os.path.join(output_path, "training_log.txt")
         with open(log_file_path, 'a') as log_file:
             log_file.write("\n\n========================== Starting Training\n")
-            log_file.write(f"Batch Size: {self.batch_size}, Learning Rate: {self.lr}, Epochs: {nb_epochs} Fraction: {self.fraction}\n")
+            log_file.write(f"Batch Size: {self.batch_size}, Learning Rate: {self.lr}, Epochs: {nb_epochs} Fraction: {self.fraction},  scheduler: {type(self.scheduler)}\n")
 
         best_model_weights = self.network.state_dict()
         best_acc = 0.0
@@ -127,7 +142,7 @@ class Mesonet():
                 loss.backward()
                 self.optimizer.step()    
 
-                if isinstance(self.scheduler, lr_scheduler.CyclicLR):
+                if isinstance(self.scheduler, lr_scheduler.CyclicLR) or isinstance(self.scheduler, lr_scheduler.OneCycleLR):
                     self.scheduler.step() 
 
                 train_loss += loss.data.item()
